@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sürpriz | ZAMANIN ÖTESİNDE</title>
+    <style>
+        /* --- GENEL STİLLER --- */
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Yatay kaydırmayı engelle */
+            transition: background-color 0.5s;
+        }
+
+        /* Tüm Ekranları Kapsayan Konteyner (Mobil Uyumlu Tam Ekran) */
+        .screen {
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: opacity 1s, visibility 1s;
+        }
+
+        /* Ekran Durumları */
+        .hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .active {
+            opacity: 1;
+            visibility: visible;
+            position: relative; /* Aktif ekranı normal akışa al */
+        }
+
+        /* ---------------------------------------------------- */
+        /* --- EKRAN 1: ZARF VE BUTON --- */
+        /* ---------------------------------------------------- */
+        #screen1 {
+            background-color: #1a1a1a;
+        }
+        
+        /* Zarf Şekli (CSS ile basit bir temsil) */
+        .envelope {
+            width: 280px;
+            height: 200px;
+            background-color: #404040; /* Koyu gri zarf rengi */
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            perspective: 1000px;
+            transition: transform 0.8s;
+        }
+
+        /* Zarfın açılan üst kapağı */
+        .envelope::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(135deg, #505050 50%, transparent 50%);
+            clip-path: polygon(0 0, 100% 0, 50% 50%);
+            transform-origin: top;
+            z-index: 2;
+        }
+
+        /* Açma Butonu */
+        #openButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #1E90FF; /* Açık Lacivert */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(30, 144, 255, 0.8);
+            z-index: 3;
+            transition: all 0.3s ease-in-out;
+            font-weight: bold;
+        }
+        #openButton:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 0 25px rgba(30, 144, 255, 1);
+        }
+
+        /* ---------------------------------------------------- */
+        /* --- EKRAN 2: MEKTUP VE DÖRT KALP --- */
+        /* ---------------------------------------------------- */
+        #screen2 {
+            background-color: #1a1a1a;
+            position: fixed; /* Mektup ekranı geçiş için sabit kalmalı */
+            padding: 20px;
+        }
+
+        .letter-container {
+            background-color: #1a1a1a;
+            padding: 20px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+
+        .birthday-letter {
+            color: white;
+            font-size: 1.4em; /* Yazı fontu biraz büyük */
+            white-space: pre-wrap; /* JS'ten gelen boşlukları ve yeni satırları koru */
+            text-align: left;
+            padding: 10px;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .letter-signature {
+            display: block;
+            text-align: right;
+            margin-top: 30px;
+            font-style: italic;
+            font-size: 1.1em;
+            color: #ff69b4; /* İmza rengi */
+        }
+        
+        /* Dört Köşedeki Kalpler için Konteyner */
+        .corner-heart {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            overflow: hidden;
+            background-color: transparent;
+            z-index: 10;
+        }
+        .corner-heart canvas {
+            width: 100%;
+            height: 100%;
+            transform: scale(0.3); /* Boyut küçültme */
+            opacity: 0.8;
+        }
+        #ch1 { top: 0; left: 0; }
+        #ch2 { top: 0; right: 0; }
+        #ch3 { bottom: 0; left: 0; }
+        #ch4 { bottom: 0; right: 0; }
+
+        /* ---------------------------------------------------- */
+        /* --- EKRAN 3: ANA SAYAÇ EKRANI (Önceki Koddan) --- */
+        /* ---------------------------------------------------- */
+        /* Bu kısım için önceki CSS'in büyük bir bölümü aşağıda tekrarlanır/eklenir */
+        #screen3 {
+            padding-top: 50px;
+            position: relative;
+        }
+        .timer-content {
+            width: 95%;
+            max-width: 1100px;
+            text-align: center;
+        }
+
+        /* Canvas ve Kalp Stilleri (SAYAÇ İÇİN) */
+        .heart-wrapper {
+            width: 280px;
+            height: 280px;
+            border-radius: 15px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000000;
+        }
+        /* ... (Önceki CSS'teki .clock, .timer, .info-cards vb. stilleri buraya dahil) ... */
+        .hearts-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            margin: 40px 0;
+        }
+        .clock {
+            width: 150px; height: 150px; border-radius: 50%; border: 5px solid #6A5ACD; background-color: #101010; position: relative; box-shadow: 0 0 15px rgba(106, 90, 205, 0.7), inset 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+        .clock-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; background-color: #6A5ACD; border-radius: 50%; z-index: 10; }
+        .hand { position: absolute; width: 3px; height: 50%; top: 50%; left: 50%; transform-origin: top center; background-color: #e0e0e0; border-radius: 2px; }
+        .hour { background-color: #FF69B4; height: 30%; margin-top: -30%; width: 5px; }
+        .minute { background-color: #1E90FF; height: 40%; margin-top: -40%; width: 4px; }
+        .second { background-color: #FF0000; height: 45%; margin-top: -45%; width: 2px; }
+        .timer-big {
+            font-family: monospace; font-size: 5em; font-weight: 200; margin: 20px 0 50px 0; color: #ffffff; letter-spacing: 5px; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        .info-cards {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; margin-bottom: 50px;
+        }
+        .card { background-color: #1e1e1e; padding: 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); text-align: left; border: 1px solid #333; }
+        .card-title { font-size: 1.1em; font-weight: 500; display: flex; align-items: center; margin-bottom: 15px; color: #b0b0b0; }
+        .card-title i { margin-right: 10px; font-size: 1.4em; color: #ff69b4; }
+        .card-date { font-size: 1.6em; font-weight: 600; color: #ffffff; line-height: 1.2; }
+        .card-subtitle { font-size: 0.9em; color: #888888; margin-top: 5px; }
+        .time-elapsed-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
+        .time-box { background-color: #333333; padding: 10px 5px; border-radius: 5px; text-align: center; border: 1px solid #444; }
+        .time-box span { display: block; font-size: 1.8em; font-weight: bold; color: #1e90ff; }
+        .time-box small { font-size: 0.75em; color: #d0d0d0; font-weight: 500; }
+        .card-footer { text-align: center; margin-top: 15px; font-size: 0.9em; color: #a0a0a0; }
+        
+        @media (max-width: 800px) {
+            .hearts-area { flex-direction: column; gap: 30px; }
+            .info-cards { grid-template-columns: 1fr; }
+            .timer-big { font-size: 3em; }
+            header h1 { font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+
+    <section id="screen1" class="screen active">
+        <div class="envelope">
+            <button id="openButton" onclick="openLetter()">AÇ</button>
+        </div>
+    </section>
+
+    <section id="screen2" class="screen hidden">
+        <div id="ch1" class="corner-heart"><canvas id="ch1Canvas"></canvas></div>
+        <div id="ch2" class="corner-heart"><canvas id="ch2Canvas"></canvas></div>
+        <div id="ch3" class="corner-heart"><canvas id="ch3Canvas"></canvas></div>
+        <div id="ch4" class="corner-heart"><canvas id="ch4Canvas"></canvas></div>
+
+        <div class="letter-container" onclick="nextScreen()">
+            <pre class="birthday-letter">Doğum günün kutlu olsun sevgilim, nice mutlu yıllar yaşaman dileğiyle.
+Umarım dilediğin gibi ve mutluluklarla geçicek çok daha güzel yıllarak adım atrsın .
+Hem yeni yaşında hemde yetişkinliğinde ve ilerisinde başarılar diliyorum .
+            
+<span class="letter-signature">------Seni Seviyorum -----hz.bora.efendi(as) yada 'kaptan buggy'</span>
+            </pre>
+        </div>
+        <p style="margin-top: 20px; color: #888;">*Mektuba dokunarak devam et*</p>
+    </section>
+
+    <section id="screen3" class="screen hidden">
+        <div class="timer-content">
+            <header>
+                <h1>ZAMANIN ÖTESİNDE</h1>
+                <p>Anılarımız Sonsuzluğa Uzanır</p>
+                <div class="quote">
+                    Nice mutlu yıllara! Umarım önündeki yıllarda multanarak artar, doğrum, doğru ve yetişknilik günn kutlu olsun.
+                    <span class="highlight-name">Hz.Bora.Efendi</span>
+                </div>
+            </header>
+
+            <section class="hearts-area">
+                <div class="heart-wrapper">
+                    <canvas id="pinkHeartCanvas" width="250" height="250"></canvas>
+                </div>
+
+                <div class="clock" id="analogClock">
+                    <div class="clock-num" style="position: absolute; top: 10%; left: 50%; transform: translate(-50%, -50%); font-size: 0.8em;">12</div>
+                    <div class="clock-num" style="position: absolute; top: 50%; right: 10%; transform: translate(50%, -50%); font-size: 0.8em;">3</div>
+                    <div class="clock-num" style="position: absolute; bottom: 10%; left: 50%; transform: translate(-50%, 50%); font-size: 0.8em;">6</div>
+                    <div class="clock-num" style="position: absolute; top: 50%; left: 10%; transform: translate(-50%, -50%); font-size: 0.8em;">9</div>
+                    <div class="hand hour" id="hourHand"></div>
+                    <div class="hand minute" id="minuteHand"></div>
+                    <div class="hand second" id="secondHand"></div>
+                    <div class="clock-center"></div>
+                </div>
+
+                <div class="heart-wrapper">
+                    <canvas id="blueHeartCanvas" width="250" height="250"></canvas>
+                </div>
+            </section>
+
+            <section class="timer timer-big" id="currentTimer">00:00:00</section>
+
+            <section class="info-cards">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-handshake"></i> İLK TANIŞTIĞIMIZ GÜN</div>
+                    <div class="card-date" id="firstDateDisplay">27 Mayıs 2025 00:00</div>
+                    <div class="card-subtitle" id="firstDateElapsed">0 gün önce</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-heart"></i> YENİDEN BİRLİKTE OLDUĞUMUZ GÜN</div>
+                    <div class="card-date" id="reunionDateDisplay">14 Kasım 2025 00:00</div>
+                    <div class="card-subtitle" id="reunionDateElapsed">0 gün önce</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">İLK TANIŞTIĞIMIZ GÜN - GEÇEN SÜRE</div>
+                    <div class="time-elapsed-grid">
+                        <div class="time-box"><small>GÜN</small><span id="firstDays">0</span></div>
+                        <div class="time-box"><small>SAAT</small><span id="firstHours">00</span></div>
+                        <div class="time-box"><small>DAKİTA</small><span id="firstMinutes">00</span></div>
+                        <div class="time-box"><small>SANİYE</small><span id="firstSeconds">00</span></div>
+                    </div>
+                    <div class="card-footer" id="firstDateFooter">PAZAR - 30 KASIM 2025 (Örnek)</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">İLK TANIDAN BİRLİĞİMİZ GÜN - GEÇEN SÜRE</div>
+                    <div class="time-elapsed-grid">
+                        <div class="time-box"><small>GÜN</small><span id="reunionDays">0</span></div>
+                        <div class="time-box"><small>SAAT</small><span id="reunionHours">00</span></div>
+                        <div class="time-box"><small>DAKİTA</small><span id="reunionMinutes">00</span></div>
+                        <div class="time-box"><small>SANİYE</small><span id="reunionSeconds">00</span></div>
+                    </div>
+                    <div class="card-footer" id="reunionDateFooter">PAZAR - 30 KASIM 2025 (Örnek)</div>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <script>
+        // /////////////////////////////////////////////////////////////////////////////////////
+        // 1. YAPILANDIRMA VE SABİTLER
+        // /////////////////////////////////////////////////////////////////////////////////////
+        const TARIH_BIRINCI = new Date('2025-05-27T00:00:00').getTime(); 
+        const TARIH_IKINCI = new Date('2025-11-14T00:00:00').getTime(); 
+        const CANVAS_SIZE = 250;
+        const SCALE_BIG = 8.5; // Büyük kalpler için
+        const SCALE_SMALL = 3.5; // Köşe kalpler için
+        const TOTAL_ITERATIONS = 2000; 
+        const PINK_COLOR = 'rgba(255, 20, 147, 0.9)'; 
+        const BLUE_COLOR = 'rgba(30, 144, 255, 0.8)'; 
+
+        let isInitialized = false; // Sayaç ekranının sadece bir kez başlatılması için
+
+        // /////////////////////////////////////////////////////////////////////////////////////
+        // 2. EKRAN GEÇİŞ FONKSİYONLARI
+        // /////////////////////////////////////////////////////////////////////////////////////
+
+        /**
+         * Zarf butonuna basıldığında ikinci ekrana geçer.
+         */
+        function openLetter() {
+            const screen1 = document.getElementById('screen1');
+            const screen2 = document.getElementById('screen2');
+
+            // 1. Ekranı gizle
+            screen1.classList.remove('active');
+            screen1.classList.add('hidden');
+
+            // 2. Ekranı göster
+            setTimeout(() => {
+                screen2.classList.remove('hidden');
+                screen2.classList.add('active');
+                
+                // Köşe kalplerini başlat
+                drawHeartRays('ch1Canvas', PINK_COLOR, SCALE_SMALL, true);
+                drawHeartRays('ch2Canvas', BLUE_COLOR, SCALE_SMALL, true);
+                drawHeartRays('ch3Canvas', BLUE_COLOR, SCALE_SMALL, true);
+                drawHeartRays('ch4Canvas', PINK_COLOR, SCALE_SMALL, true);
+            }, 800); 
+        }
+
+        /**
+         * Mektuba basıldığında üçüncü (ana sayaç) ekrana geçer.
+         */
+        function nextScreen() {
+            const screen2 = document.getElementById('screen2');
+            const screen3 = document.getElementById('screen3');
+            
+            // Köşe kalplerini ve 2. ekranı gizle
+            screen2.classList.remove('active');
+            screen2.classList.add('hidden');
+
+            // 3. Ekranı göster
+            setTimeout(() => {
+                screen3.classList.remove('hidden');
+                screen3.classList.add('active');
+                
+                // Ana sayaç ekranını başlat
+                if (!isInitialized) {
+                    initializeMainScreen();
+                    isInitialized = true;
+                }
+            }, 800);
+        }
+
+        // /////////////////////////////////////////////////////////////////////////////////////
+        // 3. KALP ÇİZİM VE ZAMAN FONKSİYONLARI (Önceki Koddaki Gibi)
+        // /////////////////////////////////////////////////////////////////////////////////////
+
+        // Parametrik Kalp Denklemi X
+        function xt(t) { return 16 * Math.pow(Math.sin(t), 3); }
+        // Parametrik Kalp Denklemi Y
+        function yt(t) { return 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t); }
+
+        /**
+         * Canvas üzerinde kalp animasyonunu çizer.
+         * @param {string} canvasId - Canvas elementi ID'si
+         * @param {string} color - Çizgi rengi (rgba)
+         * @param {number} scale - Kalp boyutu ölçeği
+         * @param {boolean} loop - Animasyonun tekrar etme durumu
+         */
+        function drawHeartRays(canvasId, color, scale, loop = false) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.height = CANVAS_SIZE; 
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            let i = 0;
+            
+            function drawFrame() {
+                if (!loop) {
+                    // Tekrarsız animasyon için
+                    if (i >= TOTAL_ITERATIONS) { return; }
+                } else {
+                    // Tekrarlı animasyon için
+                    if (i >= TOTAL_ITERATIONS) { 
+                        i = 0; 
+                        ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+                    }
+                }
+
+                const t = (i / TOTAL_ITERATIONS) * (2 * Math.PI) - (Math.PI / 2); 
+                const x = xt(t) * scale;
+                const y = yt(t) * scale;
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY + (CANVAS_SIZE * 0.1)); 
+                ctx.lineTo(centerX + x, centerY - y);
+                
+                // Opaklığı ayarlayarak saçılma efekti ver
+                ctx.strokeStyle = color.replace('0.9', (i / TOTAL_ITERATIONS) * 0.8 + 0.1); 
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                i += 15; // Hızlı çizim
+                requestAnimationFrame(drawFrame);
+            }
+            drawFrame();
+        }
+        
+        // Tarih formatlama
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const options = { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return date.toLocaleDateString('tr-TR', options).replace(',', '') + ' ' + date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Ana sayaç ve saat güncelleme
+        function updateTime() {
+            const now = new Date();
+            const nowTime = now.getTime();
+
+            // A. Genel Sayaç (Anlık Saat)
+            const timerHours = String(now.getHours()).padStart(2, '0');
+            const timerMinutes = String(now.getMinutes()).padStart(2, '0');
+            const timerSeconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('currentTimer').textContent = `${timerHours}:${timerMinutes}:${timerSeconds}`;
+
+            // B. Analog Saat Güncelleme
+            const seconds = now.getSeconds();
+            const minutes = now.getMinutes();
+            const hours = now.getHours();
+
+            const sDeg = (seconds / 60) * 360;
+            const mDeg = (minutes / 60) * 360 + (seconds / 60) * 6;
+            const hDeg = (hours % 12 / 12) * 360 + (minutes / 60) * 30;
+
+            document.getElementById('secondHand').style.transform = `translate(-50%, 0) rotate(${sDeg}deg)`;
+            document.getElementById('minuteHand').style.transform = `translate(-50%, 0) rotate(${mDeg}deg)`;
+            document.getElementById('hourHand').style.transform = `translate(-50%, 0) rotate(${hDeg}deg)`;
+
+
+            // C. Geçen Süre Hesaplama
+            const calculateAndDisplayTime = (targetTime, prefix) => {
+                const elapsedMs = nowTime - targetTime;
+                
+                if (elapsedMs < 0) {
+                    const daysRemaining = Math.ceil(Math.abs(elapsedMs) / (1000 * 3600 * 24));
+                    document.getElementById(`${prefix}DateElapsed`).textContent = `Henüz ${daysRemaining} gün kaldı`;
+                    document.getElementById(`${prefix}Days`).textContent = daysRemaining;
+                    document.getElementById(`${prefix}Hours`).textContent = '00';
+                    document.getElementById(`${prefix}Minutes`).textContent = '00';
+                    document.getElementById(`${prefix}Seconds`).textContent = '00';
+                    return;
+                }
+
+                const totalSeconds = Math.floor(elapsedMs / 1000);
+                const days = Math.floor(totalSeconds / (3600 * 24));
+                const remainingSeconds = totalSeconds % (3600 * 24);
+
+                const hours = String(Math.floor(remainingSeconds / 3600)).padStart(2, '0');
+                const minutes = String(Math.floor((remainingSeconds % 3600) / 60)).padStart(2, '0');
+                const seconds = String(remainingSeconds % 60).padStart(2, '0');
+
+                document.getElementById(`${prefix}Days`).textContent = days;
+                document.getElementById(`${prefix}Hours`).textContent = hours;
+                document.getElementById(`${prefix}Minutes`).textContent = minutes;
+                document.getElementById(`${prefix}Seconds`).textContent = seconds;
+                document.getElementById(`${prefix}DateElapsed`).textContent = `${days} gün önce`;
+            };
+
+            calculateAndDisplayTime(TARIH_BIRINCI, 'first');
+            calculateAndDisplayTime(TARIH_IKINCI, 'reunion');
+        }
+
+        // /////////////////////////////////////////////////////////////////////////////////////
+        // 4. BAŞLANGIÇ VE YÖNETİM
+        // /////////////////////////////////////////////////////////////////////////////////////
+        
+        let intervalId; // setInterval ID'sini tutar
+
+        function initializeMainScreen() {
+            // Ana sayaç kalplerini başlat
+            drawHeartRays('pinkHeartCanvas', PINK_COLOR, SCALE_BIG);
+            drawHeartRays('blueHeartCanvas', BLUE_COLOR, SCALE_BIG);
+
+            // Tarihleri başlık kartlarına yerleştir
+            document.getElementById('firstDateDisplay').textContent = formatDate(TARIH_BIRINCI);
+            document.getElementById('reunionDateDisplay').textContent = formatDate(TARIH_IKINCI);
+
+            // Zamanı Başlat ve saniyede bir güncelle
+            updateTime();
+            intervalId = setInterval(updateTime, 1000);
+        }
+
+        // Sayfa yüklendiğinde hiçbir şey yapma, sadece 1. ekranı göster
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sadece 1. ekranın aktif olduğundan emin ol
+            document.getElementById('screen1').classList.add('active');
+            document.getElementById('screen2').classList.add('hidden');
+            document.getElementById('screen3').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
